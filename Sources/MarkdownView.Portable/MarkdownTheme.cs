@@ -10,6 +10,7 @@ namespace Xam.Forms.Markdown
             this.Paragraph = new MarkdownStyle
             {
                 Attributes = FontAttributes.None,
+                BackgroundColor = Color.White,
                 FontSize = 12,
             };
 
@@ -81,7 +82,8 @@ namespace Xam.Forms.Markdown
                 Attributes = FontAttributes.Bold,
                 FontSize = 12,
                 BorderSize = 1,
-                BackgroundColor = Color.LightGray,
+                ForegroundColor = Color.White,
+                BackgroundColor = Color.Silver,
             };
 
             // Platform specific properties

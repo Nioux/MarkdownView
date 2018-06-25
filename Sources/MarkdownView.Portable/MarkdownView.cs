@@ -387,37 +387,37 @@
 
         private void Render(Markdig.Extensions.Tables.Table tableBlock)
         {
-            var grid = new Grid() { HorizontalOptions = new LayoutOptions() { Expands = false } } ;
+            var grid = new Grid() { HorizontalOptions = new LayoutOptions(LayoutAlignment.Start, false), Margin = 10, Padding = 1, BackgroundColor = Theme.TableHeader.BackgroundColor, RowSpacing = 1, ColumnSpacing = 1 };
             int top = 0;
             int maxColumns = 0;
-            grid.BackgroundColor = Color.Black;
-            grid.ColumnSpacing = 1;
-            grid.RowSpacing = 1;
             foreach (Markdig.Extensions.Tables.TableRow row in tableBlock)
             {
                 int left = 0;
                 foreach(Markdig.Extensions.Tables.TableCell cell in row)
                 {
-                    var flex = new StackLayout { Orientation = StackOrientation.Horizontal, HorizontalOptions = new LayoutOptions() { Alignment = LayoutAlignment.Fill, Expands = true }, BackgroundColor = Theme.TableHeader.BackgroundColor };
                     foreach (var blockpar in cell)
                     {
                         var par = blockpar as Markdig.Syntax.ParagraphBlock;
                         var style = row.IsHeader ? Theme.TableHeader : Theme.Paragraph;
-                        var foregroundColor = isQuoted ? this.Theme.Quote.ForegroundColor : style.ForegroundColor;
+                        var frame = new Frame
+                        {
+                            BackgroundColor = style.BackgroundColor,
+                            Margin = 1,
+                            Padding = 10,
+                        };
                         var label = new Label
                         {
-                            FormattedText = CreateFormatted(par.Inline, style.FontFamily, style.Attributes, foregroundColor, style.BackgroundColor, style.FontSize),
+                            FormattedText = CreateFormatted(par.Inline, style.FontFamily, style.Attributes, style.ForegroundColor, style.BackgroundColor, style.FontSize),
+                            HorizontalOptions = new LayoutOptions(LayoutAlignment.Center, true),
+                            BackgroundColor = style.BackgroundColor,
+                            VerticalTextAlignment = TextAlignment.Center,
+                            HorizontalTextAlignment = TextAlignment.Center,
                         };
+                        frame.Content = label;
                         AttachLinks(label);
-                        if(row.IsHeader)
-                        {
-                            label.BackgroundColor = style.BackgroundColor;
-                        }
-                        flex.Children.Add(label);
+                        grid.Children.Add(frame, left, top);
                     }
-                    flex.HorizontalOptions = new LayoutOptions() { Alignment = row.IsHeader ? LayoutAlignment.Center : LayoutAlignment.Start };
 
-                    grid.Children.Add(flex, left, top);
                     left++;
                     maxColumns = Math.Max(maxColumns, left);
                 }
@@ -427,7 +427,6 @@
             {
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
             }
-
             stack.Children.Add(grid);
         }
 
