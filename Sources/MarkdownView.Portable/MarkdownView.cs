@@ -403,7 +403,7 @@
                         {
                             BackgroundColor = style.BackgroundColor,
                             Margin = 1,
-                            Padding = 10,
+                            Padding = 5,
                         };
                         var label = new Label
                         {
