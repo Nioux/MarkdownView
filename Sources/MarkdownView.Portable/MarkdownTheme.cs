@@ -76,6 +76,14 @@ namespace Xam.Forms.Markdown
                 BorderSize = 2,
             };
 
+            this.TableHeader = new MarkdownStyle
+            {
+                Attributes = FontAttributes.Bold,
+                FontSize = 12,
+                BorderSize = 1,
+                BackgroundColor = Color.LightGray,
+            };
+
             // Platform specific properties
             switch (Device.RuntimePlatform)
             {
@@ -112,6 +120,8 @@ namespace Xam.Forms.Markdown
         public MarkdownStyle Link { get; set; }
 
         public MarkdownStyle Code { get; set; }
+
+        public MarkdownStyle TableHeader { get; set; }
 
         public float Margin { get; set; } = 10;
     }

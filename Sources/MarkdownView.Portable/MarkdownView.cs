@@ -9,6 +9,7 @@
     using System.Diagnostics;
     using System.IO;
     using Extensions;
+    using Markdig;
 
     public class MarkdownView : ContentView
     {
@@ -67,7 +68,9 @@
 
             if(!string.IsNullOrEmpty(this.Markdown))
             {
-                var parsed = Markdig.Markdown.Parse(this.Markdown);
+                this.Markdown = "|test|truc|\n|---|---|\n|case 1|case 2|";
+                var pipeline = new Markdig.MarkdownPipelineBuilder().UsePipeTables().Build();
+                var parsed = Markdig.Markdown.Parse(this.Markdown, pipeline);
                 this.Render(parsed.AsEnumerable());
             }
 
@@ -144,6 +147,10 @@
 
                 case HtmlBlock html:
                     Render(html);
+                    break;
+
+                case Markdig.Extensions.Tables.Table table:
+                    Render(table);
                     break;
 
                 default:
@@ -377,6 +384,53 @@
                 Content = label
             });
         }
+
+        private void Render(Markdig.Extensions.Tables.Table tableBlock)
+        {
+            var grid = new Grid() { HorizontalOptions = new LayoutOptions() { Expands = false } } ;
+            int top = 0;
+            int maxColumns = 0;
+            grid.BackgroundColor = Color.Black;
+            grid.ColumnSpacing = 1;
+            grid.RowSpacing = 1;
+            foreach (Markdig.Extensions.Tables.TableRow row in tableBlock)
+            {
+                int left = 0;
+                foreach(Markdig.Extensions.Tables.TableCell cell in row)
+                {
+                    var flex = new StackLayout { Orientation = StackOrientation.Horizontal, HorizontalOptions = new LayoutOptions() { Alignment = LayoutAlignment.Fill, Expands = true }, BackgroundColor = Theme.TableHeader.BackgroundColor };
+                    foreach (var blockpar in cell)
+                    {
+                        var par = blockpar as Markdig.Syntax.ParagraphBlock;
+                        var style = row.IsHeader ? Theme.TableHeader : Theme.Paragraph;
+                        var foregroundColor = isQuoted ? this.Theme.Quote.ForegroundColor : style.ForegroundColor;
+                        var label = new Label
+                        {
+                            FormattedText = CreateFormatted(par.Inline, style.FontFamily, style.Attributes, foregroundColor, style.BackgroundColor, style.FontSize),
+                        };
+                        AttachLinks(label);
+                        if(row.IsHeader)
+                        {
+                            label.BackgroundColor = style.BackgroundColor;
+                        }
+                        flex.Children.Add(label);
+                    }
+                    flex.HorizontalOptions = new LayoutOptions() { Alignment = row.IsHeader ? LayoutAlignment.Center : LayoutAlignment.Start };
+
+                    grid.Children.Add(flex, left, top);
+                    left++;
+                    maxColumns = Math.Max(maxColumns, left);
+                }
+                top++;
+            }
+            for (int i = 0; i < maxColumns; i++)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
+            }
+
+            stack.Children.Add(grid);
+        }
+
 
         private FormattedString CreateFormatted(ContainerInline inlines, string family, FontAttributes attributes, Color foregroundColor, Color backgroundColor, float size)
         {
