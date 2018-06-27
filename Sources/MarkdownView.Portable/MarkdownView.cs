@@ -68,13 +68,13 @@
 
             if(!string.IsNullOrEmpty(this.Markdown))
             {
-                //this.Markdown = "|test|truc|\n|---|---|\n|case 1|case 2|";
                 var pipeline = new Markdig.MarkdownPipelineBuilder().UsePipeTables().Build();
                 var parsed = Markdig.Markdown.Parse(this.Markdown, pipeline);
                 this.Render(parsed.AsEnumerable());
             }
 
             this.Content = stack;
+
         }
 
         private void Render(IEnumerable<Block> blocks)
@@ -387,7 +387,9 @@
 
         private void Render(Markdig.Extensions.Tables.Table tableBlock)
         {
-            var grid = new Grid() { HorizontalOptions = new LayoutOptions(LayoutAlignment.Start, false), Margin = 10, Padding = 1, BackgroundColor = Theme.TableHeader.BackgroundColor, RowSpacing = 1, ColumnSpacing = 1 };
+            var scroll = new ScrollView() { HorizontalScrollBarVisibility = ScrollBarVisibility.Default, Orientation = ScrollOrientation.Horizontal };
+            var grid = new Grid() { HorizontalOptions = LayoutOptions.Start, Margin = 0, Padding = 1, BackgroundColor = Theme.TableHeader.BackgroundColor, RowSpacing = 1, ColumnSpacing = 1 };
+
             int top = 0;
             int maxColumns = 0;
             foreach (Markdig.Extensions.Tables.TableRow row in tableBlock)
@@ -408,7 +410,7 @@
                         var label = new Label
                         {
                             FormattedText = CreateFormatted(par.Inline, style.FontFamily, style.Attributes, style.ForegroundColor, style.BackgroundColor, style.FontSize),
-                            HorizontalOptions = new LayoutOptions(LayoutAlignment.Center, true),
+                            HorizontalOptions = LayoutOptions.CenterAndExpand,
                             BackgroundColor = style.BackgroundColor,
                             VerticalTextAlignment = TextAlignment.Center,
                             HorizontalTextAlignment = TextAlignment.Center,
@@ -421,13 +423,20 @@
                     left++;
                     maxColumns = Math.Max(maxColumns, left);
                 }
+                grid.RowDefinitions.Add(new RowDefinition { Height= GridLength.Auto });
                 top++;
             }
             for (int i = 0; i < maxColumns; i++)
             {
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             }
-            stack.Children.Add(grid);
+            //grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            //grid.RowDefinitions.Add(new RowDefinition { Height= new GridLength(1, GridUnitType.Star) });
+            stack.Children.Add(scroll);
+            scroll.Content = grid;
+            //grid.WidthRequest = 1000;
+            scroll.ForceLayout();
+            this.UpdateChildrenLayout();
         }
 
 
