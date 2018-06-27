@@ -68,7 +68,7 @@
 
             if(!string.IsNullOrEmpty(this.Markdown))
             {
-                this.Markdown = "|test|truc|\n|---|---|\n|case 1|case 2|";
+                //this.Markdown = "|test|truc|\n|---|---|\n|case 1|case 2|";
                 var pipeline = new Markdig.MarkdownPipelineBuilder().UsePipeTables().Build();
                 var parsed = Markdig.Markdown.Parse(this.Markdown, pipeline);
                 this.Render(parsed.AsEnumerable());
